@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "iostream": "cpp",
+        "xstring": "cpp",
+        "ostream": "cpp",
+        "iomanip": "cpp",
+        "cache.h": "c",
+        "queue": "c",
+        "xtree": "c",
+        "fstream": "cpp",
+        "istream": "cpp",
+        "streambuf": "cpp"
+    }
+}

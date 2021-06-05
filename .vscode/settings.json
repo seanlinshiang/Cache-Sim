@@ -9,6 +9,7 @@
         "xtree": "c",
         "fstream": "cpp",
         "istream": "cpp",
-        "streambuf": "cpp"
+        "streambuf": "cpp",
+        "string": "cpp"
     }
 }

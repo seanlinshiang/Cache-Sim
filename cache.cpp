@@ -11,8 +11,7 @@
 using namespace std;
 
 void direct(char **, int&, int&, int&, int&, int&, int&);
-void tfeway(char **, int&, int&, int&, int&, int&, int&);
-void full(char **, int&, int&, int&, int&, int&, int&);
+void tfefway(char **, int&, int&, int&, int&, int&, int&);
 void hex2bin(string, string&);
 
 //cache <cache size> <block size> <associativity> <replace policy> <file name>
@@ -23,11 +22,9 @@ int main (int argc, char *argv[]){
     double miss_rate;
     
     if(asc == '1')
-        tfeway(argv, cache_hit, cache_miss, l0_count, l1_count, b_from_m, b_to_m);
-    else if(asc == '2' || asc == '4' || asc == '8')
-        tfeway(argv, cache_hit, cache_miss, l0_count, l1_count, b_from_m, b_to_m);
-    else if(asc == 'f')
-        full(argv, cache_hit, cache_miss, l0_count, l1_count, b_from_m, b_to_m);
+        direct(argv, cache_hit, cache_miss, l0_count, l1_count, b_from_m, b_to_m);
+    else if(asc == '2' || asc == '4' || asc == '8' || asc == 'f')
+        tfefway(argv, cache_hit, cache_miss, l0_count, l1_count, b_from_m, b_to_m);
     else 
         cout<<"wrong associativity";
 
@@ -206,7 +203,7 @@ void direct(char ** argv, int& cache_hit, int& cache_miss, int& l0_count, int& l
     file.close();
 }
 
-void tfeway(char ** argv, int& cache_hit, int& cache_miss, int& l0_count, int& l1_count, int& b_from_m, int& b_to_m){
+void tfefway(char ** argv, int& cache_hit, int& cache_miss, int& l0_count, int& l1_count, int& b_from_m, int& b_to_m){
     //input arguments
     string replace, filename;
     int asc;
@@ -224,11 +221,17 @@ void tfeway(char ** argv, int& cache_hit, int& cache_miss, int& l0_count, int& l
     filename = argv[5];
     
     //calculate the bits
-    block_num = (cache_size*1024/block_size)/asc;
-    i_bits = round(log2(block_num));
+    if(asc == 2 || asc == 4 || asc == 8)
+        block_num = (cache_size*1024/block_size)/asc;
+    else    
+        block_num = (cache_size*1024/block_size);
+    if(asc == 2 || asc == 4 || asc == 8)
+        i_bits = round(log2(block_num));
+    else
+        i_bits = 0;
     o_bits = log2(block_size);
     tag_bits = 32 - i_bits - o_bits;
-    
+
     //open file
     file.open(filename, ios::in);
     if(!file)
@@ -238,7 +241,10 @@ void tfeway(char ** argv, int& cache_hit, int& cache_miss, int& l0_count, int& l
         vector<Fifo> f;
         
         for(int i = 0; i < (block_num); i++){
-            f.push_back(Fifo(asc, block_size));
+            if(asc == 2 || asc == 4 || asc == 8)
+                f.push_back(Fifo(asc, block_size));
+            else
+                f.push_back(Fifo(block_num, block_size));
         }
 
         while(file>>label){
@@ -247,10 +253,13 @@ void tfeway(char ** argv, int& cache_hit, int& cache_miss, int& l0_count, int& l
             int tag_i, index_i;
             hex2bin(address, baddress);
             tag.append(baddress,0,tag_bits);
-            index.append(baddress,tag_bits,i_bits);
+            if(asc == 2 || asc == 4 || asc == 8)  
+                index.append(baddress,tag_bits,i_bits);
             tag_i = stoi(tag,nullptr,2);
-            index_i = stoi(index,nullptr,2);
-                        
+            if(asc == 2 || asc == 4 || asc == 8)  
+                index_i = stoi(index,nullptr,2);
+            else
+                index_i = 0;            
             //read case
             if((label == 0) || (label == 2)){
                 f[index_i].read(tag_i,cache_hit,cache_miss,b_from_m,b_to_m);
@@ -269,8 +278,11 @@ void tfeway(char ** argv, int& cache_hit, int& cache_miss, int& l0_count, int& l
     }else if(replace == "LRU"){
         vector<Lru> l;
             
-        for(int i = 0;i < block_num; i++){
-            l.push_back(Lru(asc,block_size));
+        for(int i = 0; i < (block_num); i++){
+            if(asc == 2 || asc == 4 || asc == 8)
+                l.push_back(Lru(asc, block_size));
+            else
+                l.push_back(Lru(block_num, block_size));
         }
         
         while(file>>label){
@@ -279,16 +291,18 @@ void tfeway(char ** argv, int& cache_hit, int& cache_miss, int& l0_count, int& l
             int tag_i, index_i;
             hex2bin(address, baddress);
             tag.append(baddress,0,tag_bits);
-            index.append(baddress,tag_bits,i_bits);
+            if(asc == 2 || asc == 4 || asc == 8)  
+                index.append(baddress,tag_bits,i_bits);
             tag_i = stoi(tag,nullptr,2);
-            index_i = stoi(index,nullptr,2);
-
+            if(asc == 2 || asc == 4 || asc == 8)  
+                index_i = stoi(index,nullptr,2);
+            else
+                index_i = 0;            
             //read case
             if((label == 0) || (label == 2)){
                 l[index_i].read(tag_i,cache_hit,cache_miss,b_from_m,b_to_m);
                 if(label==0) 
                     l0_count++;
-            
             //write case
             }else if(label == 1){
                 l[index_i].write(tag_i,cache_hit,cache_miss,b_from_m,b_to_m);
@@ -298,86 +312,6 @@ void tfeway(char ** argv, int& cache_hit, int& cache_miss, int& l0_count, int& l
         for(int i = 0; i < (block_num); i++){
             l[i].write_back(b_to_m);
         }
-    }
-    file.close();
-}
-
-void full(char ** argv, int& cache_hit, int& cache_miss, int& l0_count, int& l1_count, int& b_from_m, int& b_to_m){
-    //input arguments
-    string replace, filename;
-    int asc;
-    int cache_size, block_size;
-    fstream file;
-    
-    string address;
-    int label, block_num, o_bits, tag_bits;
-    
-    //main arguments
-    cache_size = atoi(argv[1]);
-    block_size = atoi(argv[2]);
-    asc = atoi(argv[3]);
-    replace = argv[4];
-    filename = argv[5];
-    
-    //calculate the bits
-    block_num = (cache_size*1024/block_size);
-    o_bits = log2(block_size);
-    tag_bits = 32 - o_bits;
-    
-    //open file
-    file.open(filename, ios::in);
-    if(!file)
-        cout<<"error";
-
-    if(replace == "FIFO"){
-        Fifo * f = new Fifo(block_num, block_size);
-
-        while(file>>label){
-            file>>address;
-            string baddress, tag;
-            int tag_i;
-            hex2bin(address, baddress);
-            tag.append(baddress,0,tag_bits);
-            tag_i = stoi(tag,nullptr,2);
-                        
-            //read case
-            if((label == 0) || (label == 2)){
-                f->read(tag_i,cache_hit,cache_miss,b_from_m,b_to_m);
-                if(label==0) 
-                    l0_count++;
-           
-            //write case
-            }else if(label == 1){
-                f->write(tag_i,cache_hit,cache_miss,b_from_m,b_to_m);
-                l1_count++;
-            }
-            
-        }
-        f->write_back(b_to_m);
-    }else if(replace == "LRU"){
-        Lru * l = new Lru(block_num, block_size);
-
-        while(file>>label){
-            file>>address;
-            string baddress, tag;
-            int tag_i;
-            hex2bin(address, baddress);
-            tag.append(baddress,0,tag_bits);
-            tag_i = stoi(tag,nullptr,2);
-
-            //read case
-            if((label == 0) || (label == 2)){
-                l->read(tag_i,cache_hit,cache_miss,b_from_m,b_to_m);
-                if(label==0) 
-                    l0_count++;
-            //write case
-            }else if(label == 1){
-                l->write(tag_i,cache_hit,cache_miss,b_from_m,b_to_m);
-                l1_count++;
-            }
-        }
-        
-        l->write_back(b_to_m);
     }
     file.close();
 }

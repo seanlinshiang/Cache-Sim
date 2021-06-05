@@ -13,6 +13,7 @@ using namespace std;
 void direct(char **, int&, int&, int&, int&, int&, int&);
 void tfefway(char **, int&, int&, int&, int&, int&, int&);
 void hex2bin(string, string&);
+
 //cache <cache size> <block size> <associativity> <replace policy> <file name>
 int main (int argc, char *argv[]){
     //input arguments

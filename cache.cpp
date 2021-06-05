@@ -23,7 +23,7 @@ int main (int argc, char *argv[]){
     double miss_rate;
     
     if(asc == '1')
-        direct(argv, cache_hit, cache_miss, l0_count, l1_count, b_from_m, b_to_m);
+        tfeway(argv, cache_hit, cache_miss, l0_count, l1_count, b_from_m, b_to_m);
     else if(asc == '2' || asc == '4' || asc == '8')
         tfeway(argv, cache_hit, cache_miss, l0_count, l1_count, b_from_m, b_to_m);
     else if(asc == 'f')

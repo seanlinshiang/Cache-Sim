@@ -16,7 +16,9 @@ void hex2bin(string, string&);
 
 //cache <cache size> <block size> <associativity> <replace policy> <file name>
 int main (int argc, char *argv[]){
+    //input arguments
     char asc = argv[3][0];
+ 
     //output arguments
     int cache_hit = 0, cache_miss= 0, l0_count= 0, l1_count= 0, b_from_m= 0, b_to_m= 0;
     double miss_rate;

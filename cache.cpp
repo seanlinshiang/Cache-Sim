@@ -7,7 +7,7 @@
 #include "cache.h"
 #include "fifo.h"
 #include "lru.h"
-
+//changes
 using namespace std;
 
 void direct(char **, int&, int&, int&, int&, int&, int&);
@@ -29,7 +29,7 @@ int main (int argc, char *argv[]){
         tfefway(argv, cache_hit, cache_miss, l0_count, l1_count, b_from_m, b_to_m);
     else 
         cout<<"wrong associativity";
-
+ 
     double a = cache_miss, b = cache_hit+cache_miss;
     miss_rate = ((double)cache_miss/(double)(cache_hit+cache_miss));
     //output

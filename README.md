@@ -1,5 +1,5 @@
 ﻿# Cache Simulation
-Simulate cache behaviour with different cache size, block size, associativity and replace policy.
+Simulate cache behavior with different cache size, block size, associativity and replace policy.
 ## Usage
 ```
 cache <cache size> <block size> <associativity> <replace policy> <file name>
